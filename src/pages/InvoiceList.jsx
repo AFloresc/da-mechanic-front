@@ -7,7 +7,9 @@ export default function InvoiceList() {
   const tenantId = 'taller-demo-01';
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null); // Estado para el modal
+  const [companyConfig, setCompanyConfig] = useState({});
 
+  // Cargar lista de facturas y configuración de la empresa al montar
   const fetchInvoices = async () => {
     try {
       const res = await axios.get(`http://localhost:8080/api/v1/invoices?tenant_id=${tenantId}`);
@@ -30,6 +32,16 @@ export default function InvoiceList() {
 
   useEffect(() => {
     fetchInvoices();
+
+    // Cargar datos del emisor guardados en configuración
+    const savedConfig = localStorage.getItem(`company_config_${tenantId}`);
+    if (savedConfig) {
+      try {
+        setCompanyConfig(JSON.parse(savedConfig));
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }, [tenantId]);
 
   return (
@@ -83,24 +95,39 @@ export default function InvoiceList() {
       <Dialog open={Boolean(selectedInvoice)} onClose={() => setSelectedInvoice(null)} maxWidth="md" fullWidth>
         {selectedInvoice && (
           <DialogContent sx={{ p: 4 }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
+            
+            {/* DEBUG TEMPORAL EN CONSOLA */}
+            {console.log("🔍 Objeto factura recibido del backend:", selectedInvoice)}
+
+            {/* CABECERA: DATOS DEL EMISOR Y DEL CLIENTE */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, pb: 2, borderBottom: '1px solid #e2e8f0', gap: 2 }}>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#0f172a', mb: 0.5 }}>EMISOR:</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{companyConfig.name || 'Taller Mecánico Demo, S.L.'}</Typography>
+                <Typography variant="body2"><b>NIF:</b> {selectedInvoice.issuer_nif || companyConfig.nif || 'B12345678'}</Typography>
+                <Typography variant="body2" color="text.secondary">{companyConfig.address || 'Calle del Motor, 14, 08001 Barcelona'}</Typography>
+              </Box>
+
+              <Box sx={{ flex: 1, textAlign: 'right' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#0f172a', mb: 0.5 }}>CLIENTE:</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{selectedInvoice.customer_name || 'N/A'}</Typography>
+                <Typography variant="body2"><b>NIF:</b> {selectedInvoice.customer_nif || 'N/A'}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {selectedInvoice.customer_address || selectedInvoice.customerAddress || selectedInvoice.address || 'Dirección no especificada'}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
               Factura: {selectedInvoice.series_number || selectedInvoice.series}
             </Typography>
             
-            <Typography variant="body1" sx={{ mb: 1 }}>
+            <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary' }}>
               <strong>Fecha de Emisión:</strong> {selectedInvoice.issue_date ? new Date(selectedInvoice.issue_date).toLocaleDateString() : 'N/A'}
             </Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              <strong>Cliente:</strong> {selectedInvoice.customer_name || 'N/A'} ({selectedInvoice.customer_nif || 'N/A'})
-            </Typography>
-            {selectedInvoice.customer_address && (
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Dirección:</strong> {selectedInvoice.customer_address}
-              </Typography>
-            )}
 
             {/* TABLA DE LÍNEAS / CONCEPTOS DE LA FACTURA */}
-            <Typography variant="subtitle1" sx={{ mt: 3, mb: 1, fontWeight: 'bold' }}>
+            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold' }}>
               Conceptos de la Factura
             </Typography>
             <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>

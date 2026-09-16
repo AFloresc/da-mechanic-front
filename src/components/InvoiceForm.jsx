@@ -50,14 +50,20 @@ export default function InvoiceForm() {
       return;
     }
 
-    const found = customers.find(c => c.id === customerId);
+    // Aseguramos la comparación estricta convirtiendo ambos a string
+    const found = customers.find(c => String(c.id) === String(customerId));
+    
     if (found) {
+      console.log("Cliente seleccionado encontrado:", found);
+
       setFormData(prev => ({
         ...prev,
         customer_name: found.name || '',
         customer_nif: found.nif || '',
         customer_address: found.address || ''
       }));
+    } else {
+      console.warn("No se encontró ningún cliente con ID:", customerId);
     }
   };
 
@@ -138,18 +144,18 @@ export default function InvoiceForm() {
       <Card sx={{ mb: 3, p: 2, boxShadow: 2 }}>
         <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>Datos del Taller, Serie y Cliente</Typography>
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid item xs={12} sm={4}>
             <TextField fullWidth label="ID Taller (Tenant ID)" name="tenant_id" value={formData.tenant_id} onChange={handleHeaderChange} required size="small" />
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid item xs={12} sm={4}>
             <TextField fullWidth label="NIF del Taller (Emisor)" name="issuer_nif" value={formData.issuer_nif} onChange={handleHeaderChange} required size="small" />
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid item xs={12} sm={4}>
             <TextField fullWidth label="Serie / Número de Factura" name="series_number" value={formData.series_number} onChange={handleHeaderChange} required size="small" />
           </Grid>
 
           {/* Selector rápido de cliente registrado */}
-          <Grid size={{ xs: 12, sm: 12 }}>
+          <Grid item xs={12}>
             <FormControl fullWidth size="small">
               <InputLabel id="select-customer-label">Seleccionar Cliente Registrado (Opcional)</InputLabel>
               <Select
@@ -171,13 +177,13 @@ export default function InvoiceForm() {
             </FormControl>
           </Grid>
 
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid item xs={12} sm={4}>
             <TextField fullWidth label="Nombre del Cliente" name="customer_name" value={formData.customer_name} onChange={handleHeaderChange} required size="small" />
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid item xs={12} sm={4}>
             <TextField fullWidth label="NIF del Cliente" name="customer_nif" value={formData.customer_nif} onChange={handleHeaderChange} required size="small" />
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid item xs={12} sm={4}>
             <TextField fullWidth label="Dirección del Cliente" name="customer_address" value={formData.customer_address} onChange={handleHeaderChange} placeholder="Calle, Ciudad, CP" size="small" />
           </Grid>
         </Grid>
@@ -211,7 +217,7 @@ export default function InvoiceForm() {
                       size="small" 
                       value={item.quantity} 
                       onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} 
-                      slotProps={{ htmlInput: { min: 1, step: 'any' } }} 
+                      inputProps={{ min: 1, step: 'any' }} 
                     />
                   </TableCell>
                   <TableCell align="right">
@@ -220,7 +226,7 @@ export default function InvoiceForm() {
                       size="small" 
                       value={item.unit_price} 
                       onChange={(e) => handleItemChange(index, 'unit_price', e.target.value)} 
-                      slotProps={{ htmlInput: { min: 0, step: '0.01' } }} 
+                      inputProps={{ min: 0, step: '0.01' }} 
                     />
                   </TableCell>
                   <TableCell align="right">
@@ -229,7 +235,7 @@ export default function InvoiceForm() {
                       size="small" 
                       value={item.discount_percentage} 
                       onChange={(e) => handleItemChange(index, 'discount_percentage', e.target.value)} 
-                      slotProps={{ htmlInput: { min: 0, max: 100, step: '1' } }} 
+                      inputProps={{ min: 0, max: 100, step: '1' }} 
                     />
                   </TableCell>
                   <TableCell align="right">
