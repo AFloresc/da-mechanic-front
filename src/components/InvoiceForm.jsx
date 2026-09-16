@@ -5,7 +5,7 @@ import {
   TableCell, TableContainer, TableHead, TableRow, Paper 
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import AddCircleIcon from '@mui/icons-material/AddCircle'; 
 import SaveIcon from '@mui/icons-material/Save';
 import axios from 'axios';
 
@@ -152,7 +152,7 @@ export default function InvoiceForm() {
           </Table>
         </TableContainer>
 
-        <Button startIcon={<AddCircleOutlineIcon />} variant="outlined" onClick={addItemRow} sx={{ mt: 1 }}>
+        <Button startIcon={<AddCircleIcon/>} variant="outlined" onClick={addItemRow} sx={{ mt: 1 }}>
           Añadir Línea
         </Button>
       </Card>
