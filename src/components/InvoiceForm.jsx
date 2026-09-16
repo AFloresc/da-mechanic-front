@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { 
   Box, Button, Card, CardContent, Grid, TextField, 
-  Typography, IconButton, Divider, Table, TableBody, 
+  Typography, IconButton, Table, TableBody, 
   TableCell, TableContainer, TableHead, TableRow, Paper 
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddCircleIcon from '@mui/icons-material/AddCircle'; 
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import SaveIcon from '@mui/icons-material/Save';
 import axios from 'axios';
 
@@ -38,7 +38,6 @@ export default function InvoiceForm() {
     setItems(items.filter((_, i) => i !== index));
   };
 
-  // Cálculos automáticos en tiempo real
   const calculateTotals = () => {
     let subtotal = 0;
     let totalTax = 0;
@@ -74,7 +73,6 @@ export default function InvoiceForm() {
         }))
       };
 
-      // Conexión con el backend en Go que hemos creado
       const response = await axios.post('http://localhost:8080/api/v1/invoices', payload);
       alert(`¡Factura creada y encadenada con éxito! Hash: ${response.data.current_hash.substring(0, 16)}...`);
     } catch (error) {
@@ -86,8 +84,12 @@ export default function InvoiceForm() {
   const totals = calculateTotals();
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: '100%', mt: 2 }}>
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#1e293b' }}>
+    <Box 
+      component="form" 
+      onSubmit={handleSubmit} 
+      sx={{ maxWidth: '900px', mx: 'auto', mt: 1, px: 2 }}
+    >
+      <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#1e293b', textAlign: 'center' }}>
         Emisión de Factura Rápida (VeriFactu)
       </Typography>
 
@@ -95,13 +97,13 @@ export default function InvoiceForm() {
       <Card sx={{ mb: 3, p: 2, boxShadow: 2 }}>
         <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>Datos del Taller y Serie</Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <TextField fullWidth label="ID Taller (Tenant ID)" name="tenant_id" value={formData.tenant_id} onChange={handleHeaderChange} required />
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <TextField fullWidth label="NIF del Taller (Emisor)" name="issuer_nif" value={formData.issuer_nif} onChange={handleHeaderChange} required />
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <TextField fullWidth label="Serie / Número de Factura" name="series_number" value={formData.series_number} onChange={handleHeaderChange} required />
           </Grid>
         </Grid>
@@ -152,7 +154,7 @@ export default function InvoiceForm() {
           </Table>
         </TableContainer>
 
-        <Button startIcon={<AddCircleIcon/>} variant="outlined" onClick={addItemRow} sx={{ mt: 1 }}>
+        <Button startIcon={<AddCircleIcon />} variant="outlined" onClick={addItemRow} sx={{ mt: 1 }}>
           Añadir Línea
         </Button>
       </Card>

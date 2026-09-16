@@ -48,7 +48,10 @@ export default function Layout() {
                 }}
               >
                 <ListItemIcon sx={{ color: selected ? '#0f172a' : 'inherit' }}>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} primaryTypographyProps={{ fontWeight: selected ? 'bold' : 'normal' }} />
+                <ListItemText 
+                  primary={item.text} 
+                  sx={{ '& .MuiListItemText-primary': { fontWeight: selected ? 'bold' : 'normal' } }} 
+                />
               </ListItemButton>
             </ListItem>
           );
@@ -58,8 +61,10 @@ export default function Layout() {
   );
 
   return (
-    <Box sx={{ display: 'flex', bgcolor: '#f8fafc', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', width: '100vw', minHeight: '100vh', bgcolor: '#f8fafc', overflowX: 'hidden' }}>
       <CssBaseline />
+      
+      {/* Barra superior */}
       <AppBar
         position="fixed"
         sx={{
@@ -68,6 +73,7 @@ export default function Layout() {
           bgcolor: 'white',
           color: '#0f172a',
           boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+          zIndex: (theme) => theme.zIndex.drawer + 1
         }}
       >
         <Toolbar>
@@ -86,9 +92,10 @@ export default function Layout() {
         </Toolbar>
       </AppBar>
       
+      {/* Menú lateral (Drawer) */}
       <Box
         component="nav"
-        лект={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
         aria-label="mailbox folders"
       >
         <Drawer
@@ -115,11 +122,23 @@ export default function Layout() {
         </Drawer>
       </Box>
 
+      {/* Contenido Principal con Flexbox nativo puro */}
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: { xs: 8, sm: 8 } }}
+        sx={{ 
+          flexGrow: 1, 
+          p: 3, 
+          mt: 8,
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center' // Centra automáticamente todo el contenido hijo (el formulario) en el espacio libre
+        }}
       >
-        <Outlet />
+        <Toolbar />
+        <Box sx={{ width: '100%', maxWidth: '900px' }}>
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );

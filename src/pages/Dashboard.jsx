@@ -19,8 +19,9 @@ export default function Dashboard() {
         </Button>
       </Box>
 
+      {/* Usamos size={{ ... }} en lugar de item xs={...} para evitar el warning */}
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <Card sx={{ boxShadow: 2, borderLeft: '5px solid #3b82f6' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -32,7 +33,7 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <Card sx={{ boxShadow: 2, borderLeft: '5px solid #10b981' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -44,7 +45,7 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <Card sx={{ boxShadow: 2, borderLeft: '5px solid #8b5cf6' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
