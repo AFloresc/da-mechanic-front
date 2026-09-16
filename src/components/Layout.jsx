@@ -8,6 +8,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import PeopleIcon from '@mui/icons-material/People'; // <--- 1. Importar el icono de clientes
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
 const drawerWidth = 260;
@@ -25,6 +26,7 @@ export default function Layout() {
     { text: 'Panel de Control', icon: <DashboardIcon />, path: '/' },
     { text: 'Nueva Factura (VeriFactu)', icon: <AddCircleIcon />, path: '/invoices/new' },
     { text: 'Historial de Facturas', icon: <ReceiptLongIcon />, path: '/invoices' },
+    { text: 'Gestión de Clientes', icon: <PeopleIcon />, path: '/customers' }, // <--- 2. Añadido al menú
   ];
 
   const drawer = (
@@ -121,7 +123,7 @@ export default function Layout() {
           {drawer}
         </Drawer>
       </Box>
-
+      
       {/* Contenido Principal con Flexbox nativo puro */}
       <Box
         component="main"
@@ -132,7 +134,7 @@ export default function Layout() {
           minWidth: 0,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center' // Centra automáticamente todo el contenido hijo (el formulario) en el espacio libre
+          alignItem: 'center'
         }}
       >
         <Toolbar />

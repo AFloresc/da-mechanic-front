@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Box, Button, Card, CardContent, Grid, TextField, 
+  Box, Button, Card, Grid, TextField, 
   Typography, IconButton, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, Paper 
+  TableCell, TableContainer, TableHead, TableRow, Paper,
+  FormControl, InputLabel, Select, MenuItem, FormHelperText
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -14,11 +15,51 @@ export default function InvoiceForm() {
     tenant_id: 'taller-demo-01',
     series_number: 'FAC-2026-001',
     issuer_nif: 'B12345678',
+    customer_name: '',
+    customer_nif: '',
+    customer_address: '', // <-- Añadido
   });
+
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
 
   const [items, setItems] = useState([
     { description: 'Cambio de aceite y filtros', quantity: 1, unit_price: 65.00, discount_percentage: 0, tax_rate: 21 }
   ]);
+
+  // Cargar clientes al montar el componente para el desplegable rápido
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/v1/customers?tenant_id=${formData.tenant_id}`);
+        setCustomers(response.data);
+      } catch (error) {
+        console.error("Error al cargar la lista de clientes:", error);
+      }
+    };
+    fetchCustomers();
+  }, [formData.tenant_id]);
+
+  // Autocompletar datos cuando el usuario selecciona un cliente del desplegable
+  const handleCustomerSelect = (e) => {
+    const customerId = e.target.value;
+    setSelectedCustomerId(customerId);
+
+    if (!customerId) {
+      setFormData(prev => ({ ...prev, customer_name: '', customer_nif: '', customer_address: '' }));
+      return;
+    }
+
+    const found = customers.find(c => c.id === customerId);
+    if (found) {
+      setFormData(prev => ({
+        ...prev,
+        customer_name: found.name || '',
+        customer_nif: found.nif || '',
+        customer_address: found.address || ''
+      }));
+    }
+  };
 
   const handleHeaderChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -74,7 +115,7 @@ export default function InvoiceForm() {
       };
 
       const response = await axios.post('http://localhost:8080/api/v1/invoices', payload);
-      alert(`¡Factura creada y encadenada con éxito! Hash: ${response.data.current_hash.substring(0, 16)}...`);
+      alert(`¡Factura creada y encadenada con éxito!\nHash: ${response.data.current_hash.substring(0, 16)}...\nQR VeriFactu Generado.`);
     } catch (error) {
       console.error(error);
       alert('Error al emitir la factura con VeriFactu.');
@@ -93,18 +134,51 @@ export default function InvoiceForm() {
         Emisión de Factura Rápida (VeriFactu)
       </Typography>
 
-      {/* Cabecera de Datos Fiscales */}
+      {/* Cabecera de Datos Fiscales, Taller y Cliente */}
       <Card sx={{ mb: 3, p: 2, boxShadow: 2 }}>
-        <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>Datos del Taller y Serie</Typography>
+        <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>Datos del Taller, Serie y Cliente</Typography>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, sm: 4 }}>
-            <TextField fullWidth label="ID Taller (Tenant ID)" name="tenant_id" value={formData.tenant_id} onChange={handleHeaderChange} required />
+            <TextField fullWidth label="ID Taller (Tenant ID)" name="tenant_id" value={formData.tenant_id} onChange={handleHeaderChange} required size="small" />
           </Grid>
           <Grid size={{ xs: 12, sm: 4 }}>
-            <TextField fullWidth label="NIF del Taller (Emisor)" name="issuer_nif" value={formData.issuer_nif} onChange={handleHeaderChange} required />
+            <TextField fullWidth label="NIF del Taller (Emisor)" name="issuer_nif" value={formData.issuer_nif} onChange={handleHeaderChange} required size="small" />
           </Grid>
           <Grid size={{ xs: 12, sm: 4 }}>
-            <TextField fullWidth label="Serie / Número de Factura" name="series_number" value={formData.series_number} onChange={handleHeaderChange} required />
+            <TextField fullWidth label="Serie / Número de Factura" name="series_number" value={formData.series_number} onChange={handleHeaderChange} required size="small" />
+          </Grid>
+
+          {/* Selector rápido de cliente registrado */}
+          <Grid size={{ xs: 12, sm: 12 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="select-customer-label">Seleccionar Cliente Registrado (Opcional)</InputLabel>
+              <Select
+                labelId="select-customer-label"
+                value={selectedCustomerId}
+                label="Seleccionar Cliente Registrado (Opcional)"
+                onChange={handleCustomerSelect}
+              >
+                <MenuItem value="">
+                  <em>-- Introducir manualmente o crear nuevo --</em>
+                </MenuItem>
+                {customers.map((c) => (
+                  <MenuItem key={c.id} value={c.id}>
+                    {c.name} ({c.nif})
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText>Seleccionar un cliente rellenará automáticamente sus datos fiscales.</FormHelperText>
+            </FormControl>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <TextField fullWidth label="Nombre del Cliente" name="customer_name" value={formData.customer_name} onChange={handleHeaderChange} required size="small" />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <TextField fullWidth label="NIF del Cliente" name="customer_nif" value={formData.customer_nif} onChange={handleHeaderChange} required size="small" />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <TextField fullWidth label="Dirección del Cliente" name="customer_address" value={formData.customer_address} onChange={handleHeaderChange} placeholder="Calle, Ciudad, CP" size="small" />
           </Grid>
         </Grid>
       </Card>

@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import NewInvoicePage from './pages/NewInvoicePage';
 import InvoiceList from './pages/InvoiceList';
+import CustomersPage from './pages/CustomersPage'; // <--- Importado desde pages
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="invoices/new" element={<NewInvoicePage />} />
           <Route path="invoices" element={<InvoiceList />} />
+          <Route path="customers" element={<CustomersPage />} /> {/* <--- Ruta configurada */}
         </Route>
       </Routes>
     </BrowserRouter>
