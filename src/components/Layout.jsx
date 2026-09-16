@@ -1,101 +1,125 @@
 import React, { useState } from 'react';
 import { 
-  AppBar, Box, CssBaseline, Drawer, IconButton, List, 
-  ListItem, ListItemIcon, ListItemText, Toolbar, Typography, useMediaQuery, useTheme 
+  AppBar, Box, CssBaseline, Divider, Drawer, IconButton, 
+  List, ListItem, ListItemButton, ListItemIcon, ListItemText, 
+  Toolbar, Typography 
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import BuildIcon from '@mui/icons-material/Build';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
-export default function Layout({ children }) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const drawerContent = (
+  const menuItems = [
+    { text: 'Panel de Control', icon: <DashboardIcon />, path: '/' },
+    { text: 'Nueva Factura (VeriFactu)', icon: <AddCircleIcon />, path: '/invoices/new' },
+    { text: 'Historial de Facturas', icon: <ReceiptLongIcon />, path: '/invoices' },
+  ];
+
+  const drawer = (
     <div>
-      <Toolbar>
-        <BuildIcon sx={{ mr: 1, color: 'primary.main' }} />
+      <Toolbar sx={{ bgcolor: '#0f172a', color: 'white', display: 'flex', alignItems: 'center', px: 2 }}>
         <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
-          Da Mechanic
+          TallerApp 🚗
         </Typography>
       </Toolbar>
+      <Divider />
       <List>
-        <ListItem button component="a" href="/">
-          <ListItemIcon><DashboardIcon /></ListItemIcon>
-          <ListItemText primary="Panel General" />
-        </ListItem>
-        <ListItem button component="a" href="/invoices/new">
-          <ListItemIcon><ReceiptLongIcon /></ListItemIcon>
-          <ListItemText primary="Nueva Factura" />
-        </ListItem>
+        {menuItems.map((item) => {
+          const selected = location.pathname === item.path;
+          return (
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton 
+                selected={selected}
+                onClick={() => { navigate(item.path); setMobileOpen(false); }}
+                sx={{
+                  '&.Mui-selected': { bgcolor: '#e2e8f0', '&:hover': { bgcolor: '#cbd5e1' } }
+                }}
+              >
+                <ListItemIcon sx={{ color: selected ? '#0f172a' : 'inherit' }}>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} primaryTypographyProps={{ fontWeight: selected ? 'bold' : 'normal' }} />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
       </List>
     </div>
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', bgcolor: '#f8fafc', minHeight: '100vh' }}>
       <CssBaseline />
-      
-      {/* Barra superior para móviles y tablets */}
-      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1, bgcolor: '#1e293b' }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+          bgcolor: 'white',
+          color: '#0f172a',
+          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+        }}
+      >
         <Toolbar>
-          {isMobile && (
-            <IconButton
-              color="inherit"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Da Mechanic — Sistema SIF VeriFactu
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 600 }}>
+            Sistema de Gestión y Facturación VeriFactu
           </Typography>
         </Toolbar>
       </AppBar>
-
-      {/* Menú lateral (Drawer) responsive */}
-      <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
-        {isMobile ? (
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{ keepMounted: true }}
-            sx={{
-              display: { xs: 'block', md: 'none' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-            }}
-          >
-            {drawerContent}
-          </Drawer>
-        ) : (
-          <Drawer
-            variant="permanent"
-            sx={{
-              display: { xs: 'none', md: 'block' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-            }}
-            open
-          >
-            {drawerContent}
-          </Drawer>
-        )}
+      
+      <Box
+        component="nav"
+        лект={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        aria-label="mailbox folders"
+      >
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, borderRight: '1px solid #e2e8f0' },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
       </Box>
 
-      {/* Contenido Principal de la App */}
-      <Box component="main" sx={{ flexGrow: req => req, p: 3, width: { md: `calc(100% - ${drawerWidth}px)` } }}>
-        <Toolbar />
-        {children}
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: { xs: 8, sm: 8 } }}
+      >
+        <Outlet />
       </Box>
     </Box>
   );
