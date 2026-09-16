@@ -17,9 +17,21 @@ export default function CustomersPage() {
   const fetchCustomers = async () => {
     try {
       const res = await axios.get(`http://localhost:8080/api/v1/customers?tenant_id=${tenantId}`);
-      setCustomers(res.data);
+      
+      // Validamos y extraemos el array de clientes de forma segura
+      const data = res.data;
+      if (Array.isArray(data)) {
+        setCustomers(data);
+      } else if (data && Array.isArray(data.customers)) {
+        setCustomers(data.customers);
+      } else if (data && Array.isArray(data.data)) {
+        setCustomers(data.data);
+      } else {
+        setCustomers([]);
+      }
     } catch (err) {
       console.error("Error al cargar clientes", err);
+      setCustomers([]);
     }
   };
 
@@ -75,19 +87,19 @@ export default function CustomersPage() {
           {isEditing ? 'Editar Cliente' : 'Nuevo Cliente'}
         </Typography>
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <TextField fullWidth label="Nombre / Razón Social" name="name" value={formData.name} onChange={handleChange} required size="small" />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <TextField fullWidth label="NIF / CIF" name="nif" value={formData.nif} onChange={handleChange} required size="small" />
           </Grid>
-          <Grid size={{ xs: 12, sm: 12 }}>
+          <Grid item xs={12} sm={12}>
             <TextField fullWidth label="Dirección Completa" name="address" value={formData.address} onChange={handleChange} size="small" />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <TextField fullWidth label="Correo Electrónico" name="email" type="email" value={formData.email} onChange={handleChange} size="small" />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <TextField fullWidth label="Teléfono" name="phone" value={formData.phone} onChange={handleChange} size="small" />
           </Grid>
         </Grid>
@@ -117,7 +129,7 @@ export default function CustomersPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {customers.map((c) => (
+              {Array.isArray(customers) && customers.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell>{c.name}</TableCell>
                   <TableCell>{c.nif}</TableCell>
@@ -128,7 +140,7 @@ export default function CustomersPage() {
                   </TableCell>
                 </TableRow>
               ))}
-              {customers.length === 0 && (
+              {(!Array.isArray(customers) || customers.length === 0) && (
                 <TableRow>
                   <TableCell colSpan={4} align="center">No hay clientes registrados.</TableCell>
                 </TableRow>
