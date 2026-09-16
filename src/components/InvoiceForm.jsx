@@ -17,7 +17,7 @@ export default function InvoiceForm() {
     issuer_nif: 'B12345678',
     customer_name: '',
     customer_nif: '',
-    customer_address: '', // <-- Añadido
+    customer_address: '',
   });
 
   const [customers, setCustomers] = useState([]);
@@ -32,7 +32,7 @@ export default function InvoiceForm() {
     const fetchCustomers = async () => {
       try {
         const response = await axios.get(`http://localhost:8080/api/v1/customers?tenant_id=${formData.tenant_id}`);
-        setCustomers(response.data);
+        setCustomers(response.data || []);
       } catch (error) {
         console.error("Error al cargar la lista de clientes:", error);
       }
@@ -83,7 +83,7 @@ export default function InvoiceForm() {
     let subtotal = 0;
     let totalTax = 0;
 
-    items.forEach(item => {
+    (items || []).forEach(item => {
       const lineSubtotal = (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
       const discountAmount = lineSubtotal * ((Number(item.discount_percentage) || 0) / 100);
       const netLine = lineSubtotal - discountAmount;
@@ -105,7 +105,7 @@ export default function InvoiceForm() {
     try {
       const payload = {
         ...formData,
-        items: items.map(item => ({
+        items: (items || []).map(item => ({
           ...item,
           quantity: Number(item.quantity),
           unit_price: Number(item.unit_price),
@@ -161,7 +161,7 @@ export default function InvoiceForm() {
                 <MenuItem value="">
                   <em>-- Introducir manualmente o crear nuevo --</em>
                 </MenuItem>
-                {customers.map((c) => (
+                {(customers || []).map((c) => (
                   <MenuItem key={c.id} value={c.id}>
                     {c.name} ({c.nif})
                   </MenuItem>
@@ -200,19 +200,37 @@ export default function InvoiceForm() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((item, index) => (
+              {(items || []).map((item, index) => (
                 <TableRow key={index}>
                   <TableCell>
                     <TextField fullWidth size="small" value={item.description} onChange={(e) => handleItemChange(index, 'description', e.target.value)} placeholder="Ej. Pastillas de freno" required />
                   </TableCell>
                   <TableCell align="right">
-                    <TextField type="number" size="small" value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} inputProps={{ min: 1, step: 'any' }} />
+                    <TextField 
+                      type="number" 
+                      size="small" 
+                      value={item.quantity} 
+                      onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} 
+                      slotProps={{ htmlInput: { min: 1, step: 'any' } }} 
+                    />
                   </TableCell>
                   <TableCell align="right">
-                    <TextField type="number" size="small" value={item.unit_price} onChange={(e) => handleItemChange(index, 'unit_price', e.target.value)} inputProps={{ min: 0, step: '0.01' }} />
+                    <TextField 
+                      type="number" 
+                      size="small" 
+                      value={item.unit_price} 
+                      onChange={(e) => handleItemChange(index, 'unit_price', e.target.value)} 
+                      slotProps={{ htmlInput: { min: 0, step: '0.01' } }} 
+                    />
                   </TableCell>
                   <TableCell align="right">
-                    <TextField type="number" size="small" value={item.discount_percentage} onChange={(e) => handleItemChange(index, 'discount_percentage', e.target.value)} inputProps={{ min: 0, max: 100, step: '1' }} />
+                    <TextField 
+                      type="number" 
+                      size="small" 
+                      value={item.discount_percentage} 
+                      onChange={(e) => handleItemChange(index, 'discount_percentage', e.target.value)} 
+                      slotProps={{ htmlInput: { min: 0, max: 100, step: '1' } }} 
+                    />
                   </TableCell>
                   <TableCell align="right">
                     <TextField type="number" size="small" value={item.tax_rate} onChange={(e) => handleItemChange(index, 'tax_rate', e.target.value)} />
